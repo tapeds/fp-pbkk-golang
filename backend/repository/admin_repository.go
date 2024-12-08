@@ -26,6 +26,9 @@ type (
 		UpdateMaskapai(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Maskapai) (entity.Maskapai, error)
 		GetBandaraByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entity.Bandara, error)
 		UpdateBandara(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Bandara) (entity.Bandara, error)
+		DeleteBandara(ctx context.Context, tx *gorm.DB, id uuid.UUID) error
+		DeleteMaskapai(ctx context.Context, tx *gorm.DB, id uuid.UUID) error
+		DeletePenerbangan(ctx context.Context, tx *gorm.DB, id uuid.UUID) error
 	}
 
 	adminRepository struct {
@@ -260,4 +263,43 @@ func (ar *adminRepository) UpdateBandara(ctx context.Context, tx *gorm.DB, id uu
 	}
 
 	return bandara, nil
+}
+
+func (ar *adminRepository) DeleteBandara(ctx context.Context, tx *gorm.DB, id uuid.UUID) error {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var bandara entity.Bandara
+	if err := tx.WithContext(ctx).Where("id = ?", id).Delete(&bandara).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ar *adminRepository) DeleteMaskapai(ctx context.Context, tx *gorm.DB, id uuid.UUID) error {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var maskapai entity.Maskapai
+	if err := tx.WithContext(ctx).Where("id = ?", id).Delete(&maskapai).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ar *adminRepository) DeletePenerbangan(ctx context.Context, tx *gorm.DB, id uuid.UUID) error {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var penerbangan entity.Penerbangan
+	if err := tx.WithContext(ctx).Where("id = ?", id).Delete(&penerbangan).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

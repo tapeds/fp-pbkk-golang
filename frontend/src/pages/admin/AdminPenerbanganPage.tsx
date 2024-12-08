@@ -18,6 +18,8 @@ import { FormProvider, useForm } from "react-hook-form";
 import Input from "../../components/Input";
 import SelectInput from "../../components/SelectInput";
 import { useCookies } from "react-cookie";
+import DeleteModal from "../../components/DeleteModal";
+import EditModal from "../../components/EditModal";
 
 type PenerbanganProps = {
   id: string;
@@ -178,11 +180,197 @@ export default function AdminPenerbangan() {
       accessorKey: "maskapai.name",
       header: "Maskapai",
     },
+    {
+      accessorKey: "action",
+      enableSorting: false,
+      header: " ",
+      cell(row) {
+        const onDelete = () => {
+          DeleteMutation(row.row.original.id);
+        };
+
+        const onSubmit = (data: PenerbanganFormProps) => {
+          const payload: PenerbanganFormProps & { id: string } = {
+            id: row.row.original.id,
+            ...data,
+            jadwal_berangkat: new Date(data.jadwal_berangkat),
+            jadwal_datang: new Date(data.jadwal_datang),
+            kapasitas: Number(data.kapasitas),
+            harga: Number(data.harga),
+          };
+
+          EditMutation(payload);
+        };
+        return (
+          <div className="flex flex-row items-center gap-5">
+            <EditModal
+              title={`Edit penerbangan ${row.row.original.no_penerbangan}`}
+              onSubmit={onSubmit}
+              data={{
+                ...row.row.original,
+                jadwal_berangkat: new Date(row.row.original.jadwal_berangkat)
+                  .toISOString()
+                  .slice(0, 16),
+                jadwal_datang: new Date(row.row.original.jadwal_datang)
+                  .toISOString()
+                  .slice(0, 16),
+                bandara_berangkat: row.row.original.bandaras.filter(
+                  (bandara) => bandara.arah === "BERANGKAT",
+                )[0].id,
+                bandara_datang: row.row.original.bandaras.filter(
+                  (bandara) => bandara.arah === "DATANG",
+                )[0].id,
+                maskapai: row.row.original.maskapai.id,
+              }}
+            >
+              <Input
+                id="no_penerbangan"
+                label="No Penerbangan"
+                placeholder="Masukan no penerbangan"
+                className="w-full"
+                validation={{
+                  required: "No penerbangan harus diisi",
+                }}
+              />
+              <Input
+                id="jadwal_berangkat"
+                label="Jadwal Keberangkatan"
+                type="datetime-local"
+                className="w-full"
+                validation={{
+                  required: "Jadwal keberangkatan harus diisi",
+                }}
+              />
+              <Input
+                id="jadwal_datang"
+                label="Jadwal Kedatangan"
+                type="datetime-local"
+                className="w-full"
+                validation={{
+                  required: "Jadwal kedatangan harus diisi",
+                }}
+              />
+              <Input
+                id="harga"
+                label="Harga"
+                placeholder="Masukan harga penerbangan"
+                type="number"
+                className="w-full"
+                validation={{
+                  required: "Harga harus diisi",
+                }}
+              />
+              <Input
+                id="kapasitas"
+                label="Kapasitas"
+                placeholder="Masukan kapasitas penerbangan"
+                type="number"
+                className="w-full"
+                validation={{
+                  required: "Kapasitas harus diisi",
+                }}
+              />
+
+              <SelectInput
+                id="bandara_berangkat"
+                label="Bandara Keberangkatan"
+                placeholder="Pilih bandara keberangkatan"
+                validation={{
+                  required: "Bandara keberangkatan harus diisi",
+                }}
+              >
+                {DataBandara?.data.map((bandara) => (
+                  <option
+                    key={bandara.id}
+                    value={bandara.id}
+                    disabled={bandara.id === BandaraDatangValue}
+                  >
+                    {bandara.name}
+                  </option>
+                ))}
+              </SelectInput>
+
+              <SelectInput
+                id="bandara_datang"
+                label="Bandara Kedatangan"
+                placeholder="Pilih bandara kedatangan"
+                validation={{
+                  required: "Bandara kedatangan harus diisi",
+                }}
+              >
+                {DataBandara?.data.map((bandara) => (
+                  <option
+                    key={bandara.id}
+                    value={bandara.id}
+                    disabled={bandara.id === BandaraBerangkatValue}
+                  >
+                    {bandara.name}
+                  </option>
+                ))}
+              </SelectInput>
+
+              <SelectInput
+                id="maskapai"
+                label="Maskapai"
+                placeholder="Pilih maskapai"
+                validation={{
+                  required: "Maskapai harus diisi",
+                }}
+              >
+                {DataMaskapai?.data.map((maskapai) => (
+                  <option key={maskapai.id} value={maskapai.id}>
+                    {maskapai.name}
+                  </option>
+                ))}
+              </SelectInput>
+            </EditModal>
+            <DeleteModal
+              title={`Apakah anda yakin untuk menghapus penerbangan ${row.row.original.no_penerbangan}`}
+              onPositive={onDelete}
+            />
+          </div>
+        );
+      },
+    },
   ];
 
   const methods = useForm<PenerbanganFormProps>();
 
   const { handleSubmit, watch } = methods;
+
+  const { mutate: DeleteMutation } = useMutation({
+    mutationFn: async (id: string) => {
+      await axios.delete(ApiURL + "/admin/penerbangan/" + id, {
+        headers: {
+          Authorization: "Bearer " + cookie.user.token,
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["penerbangan"],
+      });
+    },
+  });
+
+  const { mutate: EditMutation } = useMutation({
+    mutationFn: async (
+      data: PenerbanganFormProps & {
+        id: string;
+      },
+    ) => {
+      await axios.patch(ApiURL + "/admin/penerbangan", data, {
+        headers: {
+          Authorization: "Bearer " + cookie.user.token,
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["penerbangan"],
+      });
+    },
+  });
 
   const { mutate } = useMutation({
     mutationFn: async (data: PenerbanganFormProps) => {

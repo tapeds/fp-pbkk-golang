@@ -2,7 +2,6 @@ package dto
 
 import (
 	"errors"
-	"mime/multipart"
 
 	"github.com/tapeds/fp-pbkk-golang/entity"
 )
@@ -56,11 +55,10 @@ var (
 
 type (
 	UserCreateRequest struct {
-		Name       string                `json:"name" form:"name"`
-		TelpNumber string                `json:"telp_number" form:"telp_number"`
-		Email      string                `json:"email" form:"email"`
-		Image      *multipart.FileHeader `json:"image" form:"image"`
-		Password   string                `json:"password" form:"password"`
+		Name       string `json:"name" form:"name"`
+		TelpNumber string `json:"telp_number" form:"telp_number"`
+		Email      string `json:"email" form:"email"`
+		Password   string `json:"password" form:"password"`
 	}
 
 	UserResponse struct {
@@ -69,7 +67,6 @@ type (
 		Email      string `json:"email"`
 		TelpNumber string `json:"telp_number"`
 		Role       string `json:"role"`
-		ImageUrl   string `json:"image_url"`
 		IsVerified bool   `json:"is_verified"`
 	}
 

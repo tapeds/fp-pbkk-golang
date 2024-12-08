@@ -1,8 +1,8 @@
 package entity
 
 import (
-	"time"
 	"gorm.io/gorm"
+	"time"
 )
 
 type Timestamp struct {
@@ -15,3 +15,4 @@ type Authorization struct {
 	Token string `json:"token"`
 	Role  string `json:"role"`
 }
+

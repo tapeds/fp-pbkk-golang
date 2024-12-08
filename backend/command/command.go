@@ -17,6 +17,7 @@ func Commands(db *gorm.DB) bool {
 	seed := false
 	run := false
 	scriptFlag := false
+	fresh := false
 
 	for _, arg := range os.Args[1:] {
 		if arg == "--migrate" {
@@ -28,12 +29,21 @@ func Commands(db *gorm.DB) bool {
 		if arg == "--run" {
 			run = true
 		}
+		if arg == "--migrate-fresh" {
+			fresh = true
+		}
 		if strings.HasPrefix(arg, "--script:") {
 			scriptFlag = true
 			scriptName = strings.TrimPrefix(arg, "--script:")
 		}
 	}
 
+	if fresh {
+		if err := migrations.Fresh(db); err != nil {
+			log.Fatalf("error migration fresh: %v", err)
+		}
+		log.Println("fresh migration completed successfully")
+	}
 	if migrate {
 		if err := migrations.Migrate(db); err != nil {
 			log.Fatalf("error migration: %v", err)

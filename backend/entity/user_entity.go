@@ -1,8 +1,8 @@
 package entity
 
 import (
-	"github.com/tapeds/fp-pbkk-golang/helpers"
 	"github.com/google/uuid"
+	"github.com/tapeds/fp-pbkk-golang/helpers"
 	"gorm.io/gorm"
 )
 
@@ -13,8 +13,8 @@ type User struct {
 	Email      string    `json:"email"`
 	Password   string    `json:"password"`
 	Role       string    `json:"role"`
-	ImageUrl   string    `json:"image_url"`
 	IsVerified bool      `json:"is_verified"`
+	Tiket      []Tiket
 
 	Timestamp
 }

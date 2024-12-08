@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/tapeds/fp-pbkk-golang/dto"
 	"github.com/tapeds/fp-pbkk-golang/service"
 	"github.com/tapeds/fp-pbkk-golang/utils"
@@ -20,6 +22,9 @@ type (
 		EditPenerbangan(ctx *gin.Context)
 		EditMaskapai(ctx *gin.Context)
 		EditBandara(ctx *gin.Context)
+		DeletePenerbangan(ctx *gin.Context)
+		DeleteMaskapai(ctx *gin.Context)
+		DeleteBandara(ctx *gin.Context)
 	}
 
 	adminController struct {
@@ -237,6 +242,88 @@ func (ac *adminController) EditBandara(ctx *gin.Context) {
 		Status:  true,
 		Message: dto.MESSAGE_SUCCESS_EDIT_BANDARA,
 		Data:    result,
+	}
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (ac *adminController) DeletePenerbangan(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	penerbanganID, err := uuid.Parse(id)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, dto.MESSAGE_FAILED_GET_ID, nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	error := ac.adminService.DeletePenerbangan(ctx.Request.Context(), penerbanganID)
+
+	if error != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_PENERBANGAN, error.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	resp := utils.Response{
+		Status:  true,
+		Message: dto.MESSAGE_SUCCESS_DELETE_PENERBANGAN,
+		Data:    nil,
+	}
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (ac *adminController) DeleteMaskapai(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	maskapaiID, err := uuid.Parse(id)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, dto.MESSAGE_FAILED_GET_ID, nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	error := ac.adminService.DeleteMaskapai(ctx.Request.Context(), maskapaiID)
+
+	if error != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MASKAPAI, error.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	resp := utils.Response{
+		Status:  true,
+		Message: dto.MESSAGE_SUCCESS_DELETE_MASKAPAI,
+		Data:    nil,
+	}
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (ac *adminController) DeleteBandara(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	fmt.Println(id)
+	bandaraID, err := uuid.Parse(id)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, dto.MESSAGE_FAILED_GET_ID, nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	error := ac.adminService.DeleteBandara(ctx.Request.Context(), bandaraID)
+
+	if error != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_BANDARA, error.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	resp := utils.Response{
+		Status:  true,
+		Message: dto.MESSAGE_SUCCESS_DELETE_BANDARA,
+		Data:    nil,
 	}
 
 	ctx.JSON(http.StatusOK, resp)

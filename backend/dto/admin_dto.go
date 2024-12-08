@@ -18,6 +18,10 @@ const (
 	MESSAGE_FAILED_EDIT_PENERBANGAN     = "failed edit penerbangan"
 	MESSAGE_FAILED_EDIT_MASKAPAI        = "failed edit maskapai"
 	MESSAGE_FAILED_EDIT_BANDARA         = "failed edit bandara"
+	MESSAGE_FAILED_GET_ID               = "failed get id"
+	MESSAGE_FAILED_DELETE_PENERBANGAN   = "failed delete penerbangan"
+	MESSAGE_FAILED_DELETE_BANDARA       = "failed delete bandara"
+	MESSAGE_FAILED_DELETE_MASKAPAI      = "failed delete maskapai"
 
 	MESSAGE_SUCCESS_CREATE_BANDARA       = "success create bandara"
 	MESSAGE_SUCCESS_CREATE_MASKAPAI      = "success create maskapai"
@@ -28,6 +32,9 @@ const (
 	MESSAGE_SUCCESS_EDIT_PENERBANGAN     = "success edit penerbangan"
 	MESSAGE_SUCCESS_EDIT_MASKAPAI        = "success edit maskapai"
 	MESSAGE_SUCCESS_EDIT_BANDARA         = "success edit bandara"
+	MESSAGE_SUCCESS_DELETE_PENERBANGAN   = "success delete penerbangan"
+	MESSAGE_SUCCESS_DELETE_BANDARA       = "success delete bandara"
+	MESSAGE_SUCCESS_DELETE_MASKAPAI      = "success delete maskapai"
 )
 
 var (
@@ -43,6 +50,11 @@ var (
 	ErrMaskapaiNotFound         = errors.New("maskapai not found")
 	ErrEditMaskapai             = errors.New("failed to edit maskapai")
 	ErrEditPenerbangan          = errors.New("failed to edit penerbangan")
+	ErrEditBandara              = errors.New("failed to edit bandara")
+	ErrBandaraNotFound          = errors.New("bandara not found")
+	ErrDeleteBandara            = errors.New("failed to delete bandara")
+	ErrDeleteMaskapai           = errors.New("failed to delete maskapai")
+	ErrDeletePenerbangan        = errors.New("failed to delete penerbangan")
 )
 
 type (

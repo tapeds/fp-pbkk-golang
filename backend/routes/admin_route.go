@@ -19,5 +19,8 @@ func Admin(route *gin.Engine, adminController controller.AdminController, jwtSer
 		routes.PATCH("/penerbangan", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.EditPenerbangan)
 		routes.PATCH("/bandara", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.EditBandara)
 		routes.PATCH("/maskapai", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.EditMaskapai)
+		routes.DELETE("/penerbangan/:id", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.DeletePenerbangan)
+		routes.DELETE("/maskapai/:id", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.DeleteMaskapai)
+		routes.DELETE("/bandara/:id", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.DeleteBandara)
 	}
 }

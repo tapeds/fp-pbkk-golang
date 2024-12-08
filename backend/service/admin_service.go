@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/tapeds/fp-pbkk-golang/dto"
 	"github.com/tapeds/fp-pbkk-golang/entity"
 	"github.com/tapeds/fp-pbkk-golang/repository"
@@ -19,6 +20,9 @@ type (
 		EditPenerbangan(ctx context.Context, req dto.PenerbanganEditRequest) (dto.PenerbanganResponse, error)
 		EditMaskapai(ctx context.Context, req dto.MaskapaiEditRequest) (dto.MaskapaiResponse, error)
 		EditBandara(ctx context.Context, req dto.BandaraEditRequest) (dto.BandaraResponse, error)
+		DeleteBandara(ctx context.Context, id uuid.UUID) error
+		DeletePenerbangan(ctx context.Context, id uuid.UUID) error
+		DeleteMaskapai(ctx context.Context, id uuid.UUID) error
 	}
 
 	adminService struct {
@@ -365,7 +369,7 @@ func (as *adminService) EditMaskapai(ctx context.Context, req dto.MaskapaiEditRe
 func (as *adminService) EditBandara(ctx context.Context, req dto.BandaraEditRequest) (dto.BandaraResponse, error) {
 	existingBandara, err := as.adminRepo.GetBandaraByID(ctx, nil, req.ID)
 	if err != nil {
-		return dto.BandaraResponse{}, dto.ErrMaskapaiNotFound
+		return dto.BandaraResponse{}, dto.ErrBandaraNotFound
 	}
 
 	maskapai := entity.Bandara{
@@ -376,7 +380,7 @@ func (as *adminService) EditBandara(ctx context.Context, req dto.BandaraEditRequ
 
 	updatedBandara, err := as.adminRepo.UpdateBandara(ctx, nil, existingBandara.ID, maskapai)
 	if err != nil {
-		return dto.BandaraResponse{}, dto.ErrCreateBandara
+		return dto.BandaraResponse{}, dto.ErrEditBandara
 	}
 
 	return dto.BandaraResponse{
@@ -385,4 +389,49 @@ func (as *adminService) EditBandara(ctx context.Context, req dto.BandaraEditRequ
 		Kode: updatedBandara.Kode,
 		Kota: updatedBandara.Kota,
 	}, nil
+}
+
+func (as *adminService) DeleteBandara(ctx context.Context, id uuid.UUID) error {
+	_, err := as.adminRepo.GetBandaraByID(ctx, nil, id)
+	if err != nil {
+		return dto.ErrBandaraNotFound
+	}
+
+	error := as.adminRepo.DeleteBandara(ctx, nil, id)
+
+	if error != nil {
+		return dto.ErrDeleteBandara
+	}
+
+	return nil
+}
+
+func (as *adminService) DeleteMaskapai(ctx context.Context, id uuid.UUID) error {
+	_, err := as.adminRepo.GetMaskapaiByID(ctx, nil, id)
+	if err != nil {
+		return dto.ErrMaskapaiNotFound
+	}
+
+	error := as.adminRepo.DeleteMaskapai(ctx, nil, id)
+
+	if error != nil {
+		return dto.ErrDeleteMaskapai
+	}
+
+	return nil
+}
+
+func (as *adminService) DeletePenerbangan(ctx context.Context, id uuid.UUID) error {
+	_, err := as.adminRepo.GetPenerbanganByID(ctx, nil, id)
+	if err != nil {
+		return dto.ErrPenerbanganNotFound
+	}
+
+	error := as.adminRepo.DeletePenerbangan(ctx, nil, id)
+
+	if error != nil {
+		return dto.ErrDeletePenerbangan
+	}
+
+	return nil
 }

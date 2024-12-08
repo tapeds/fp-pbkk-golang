@@ -10,6 +10,7 @@ import (
 func Migrate(db *gorm.DB) error {
 	queries := []string{
 		`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
+		`CREATE TYPE arah_enum AS ENUM ('BERANGKAT', 'DATANG');`,
 	}
 
 	for _, query := range queries {

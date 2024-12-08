@@ -15,6 +15,7 @@ type Penerbangan struct {
 	Kapasitas       int       `json:"kapasitas"`
 
 	MaskapaiID         uuid.UUID
+	Maskapai           Maskapai
 	Tiket              []Tiket
 	BandaraPenerbangan []BandaraPenerbangan
 

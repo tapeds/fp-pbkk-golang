@@ -59,7 +59,7 @@ func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (
 		Role:       constants.ENUM_ROLE_USER,
 		Email:      req.Email,
 		Password:   req.Password,
-		IsVerified: false,
+		IsVerified: true,
 	}
 
 	userReg, err := s.userRepo.RegisterUser(ctx, nil, user)
@@ -67,15 +67,15 @@ func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (
 		return dto.UserResponse{}, dto.ErrCreateUser
 	}
 
-	draftEmail, err := makeVerificationEmail(userReg.Email)
-	if err != nil {
-		return dto.UserResponse{}, err
-	}
+	// draftEmail, err := makeVerificationEmail(userReg.Email)
+	// if err != nil {
+	// 	return dto.UserResponse{}, err
+	// }
 
-	err = utils.SendMail(userReg.Email, draftEmail["subject"], draftEmail["body"])
-	if err != nil {
-		return dto.UserResponse{}, err
-	}
+	// err = utils.SendMail(userReg.Email, draftEmail["subject"], draftEmail["body"])
+	// if err != nil {
+	// 	return dto.UserResponse{}, err
+	// }
 
 	return dto.UserResponse{
 		ID:         userReg.ID.String(),

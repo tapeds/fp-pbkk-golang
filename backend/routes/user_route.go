@@ -1,10 +1,10 @@
 package routes
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/tapeds/fp-pbkk-golang/controller"
 	"github.com/tapeds/fp-pbkk-golang/middleware"
 	"github.com/tapeds/fp-pbkk-golang/service"
-	"github.com/gin-gonic/gin"
 )
 
 func User(route *gin.Engine, userController controller.UserController, jwtService service.JWTService) {

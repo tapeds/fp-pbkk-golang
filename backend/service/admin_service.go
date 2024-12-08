@@ -11,8 +11,11 @@ import (
 type (
 	AdminService interface {
 		GetAllPenerbanganWithPagination(ctx context.Context, req dto.PaginationRequest) (dto.PenerbanganPaginationResponse, error)
+		GetAllBandara(ctx context.Context) ([]dto.BandaraResponse, error)
+		GetAllMaskapai(ctx context.Context) ([]dto.MaskapaiResponse, error)
 		CreateBandara(ctx context.Context, req dto.BandaraCreateRequest) (dto.BandaraResponse, error)
 		CreateMaskapai(ctx context.Context, req dto.MaskapaiCreateRequest) (dto.MaskapaiResponse, error)
+		CreatePenerbangan(ctx context.Context, req dto.PenerbanganCreateRequest) (dto.PenerbanganResponse, error)
 	}
 
 	adminService struct {
@@ -36,6 +39,17 @@ func (as *adminService) GetAllPenerbanganWithPagination(ctx context.Context, req
 
 	var datas []dto.PenerbanganResponse
 	for _, penerbangan := range dataWithPaginate.Penerbangans {
+		var bandaras []dto.BandaraResponse
+		for _, bp := range penerbangan.BandaraPenerbangan {
+			bandara := dto.BandaraResponse{
+				ID:   bp.Bandara.ID,
+				Name: bp.Bandara.Name,
+				Kota: bp.Bandara.Kota,
+				Kode: bp.Bandara.Kode,
+			}
+			bandaras = append(bandaras, bandara)
+		}
+
 		data := dto.PenerbanganResponse{
 			ID:              penerbangan.ID,
 			NoPenerbangan:   penerbangan.NoPenerbangan,
@@ -43,6 +57,12 @@ func (as *adminService) GetAllPenerbanganWithPagination(ctx context.Context, req
 			JadwalDatang:    penerbangan.JadwalDatang,
 			Harga:           penerbangan.Harga,
 			Kapasitas:       penerbangan.Kapasitas,
+			Maskapai: dto.MaskapaiResponse{
+				ID:    penerbangan.Maskapai.ID,
+				Name:  penerbangan.Maskapai.Name,
+				Image: penerbangan.Maskapai.Image,
+			},
+			Bandaras: bandaras,
 		}
 
 		datas = append(datas, data)
@@ -57,6 +77,47 @@ func (as *adminService) GetAllPenerbanganWithPagination(ctx context.Context, req
 			Count:   dataWithPaginate.Count,
 		},
 	}, nil
+}
+
+func (as *adminService) GetAllBandara(ctx context.Context) ([]dto.BandaraResponse, error) {
+	bandaraData, err := as.adminRepo.GetAllBandara(ctx, nil)
+
+	if err != nil {
+		return []dto.BandaraResponse{}, nil
+	}
+
+	var bandaras []dto.BandaraResponse
+	for _, bandara := range bandaraData {
+		bandara := dto.BandaraResponse{
+			ID:   bandara.ID,
+			Name: bandara.Name,
+			Kota: bandara.Kota,
+			Kode: bandara.Kode,
+		}
+		bandaras = append(bandaras, bandara)
+	}
+
+	return bandaras, nil
+}
+
+func (as *adminService) GetAllMaskapai(ctx context.Context) ([]dto.MaskapaiResponse, error) {
+	maskapaiData, err := as.adminRepo.GetAllMaskapai(ctx, nil)
+
+	if err != nil {
+		return []dto.MaskapaiResponse{}, nil
+	}
+
+	var maskapais []dto.MaskapaiResponse
+	for _, maskapai := range maskapaiData {
+		maskapai := dto.MaskapaiResponse{
+			ID:    maskapai.ID,
+			Name:  maskapai.Name,
+			Image: maskapai.Image,
+		}
+		maskapais = append(maskapais, maskapai)
+	}
+
+	return maskapais, nil
 }
 
 func (as *adminService) CreateBandara(ctx context.Context, req dto.BandaraCreateRequest) (dto.BandaraResponse, error) {
@@ -101,5 +162,88 @@ func (as *adminService) CreateMaskapai(ctx context.Context, req dto.MaskapaiCrea
 		ID:    maskapaiReg.ID,
 		Name:  maskapaiReg.Name,
 		Image: maskapaiReg.Image,
+	}, nil
+}
+
+func (as *adminService) CreatePenerbangan(ctx context.Context, req dto.PenerbanganCreateRequest) (dto.PenerbanganResponse, error) {
+
+	if req.Harga <= 0 {
+		return dto.PenerbanganResponse{}, dto.ErrPriceBelowZero
+	}
+
+	if req.Kapasitas <= 0 {
+		return dto.PenerbanganResponse{}, dto.ErrCapacityBelowZero
+	}
+
+	if !req.JadwalBerangkat.Before(req.JadwalDatang) {
+		return dto.PenerbanganResponse{}, dto.ErrScheduleUnmatch
+	}
+
+	if req.BandaraBerangkatID == req.BandaraDatangID {
+		return dto.PenerbanganResponse{}, dto.ErrMatchingAirport
+	}
+
+	_, flag, _ := as.adminRepo.CheckPenerbanganNumber(ctx, nil, req.NoPenerbangan)
+	if flag {
+		return dto.PenerbanganResponse{}, dto.ErrPenerbanganAlreadyExists
+	}
+
+	var bandaraPenerbangan []entity.BandaraPenerbangan
+
+	bandaraBerangkat := entity.BandaraPenerbangan{
+		BandaraID: req.BandaraBerangkatID,
+		Arah:      entity.ArahBerangkat,
+	}
+
+	bandaraPenerbangan = append(bandaraPenerbangan, bandaraBerangkat)
+
+	bandaraDatang := entity.BandaraPenerbangan{
+		BandaraID: req.BandaraDatangID,
+		Arah:      entity.ArahDatang,
+	}
+
+	bandaraPenerbangan = append(bandaraPenerbangan, bandaraDatang)
+
+	penerbangan := entity.Penerbangan{
+		NoPenerbangan:      req.NoPenerbangan,
+		JadwalBerangkat:    req.JadwalBerangkat,
+		JadwalDatang:       req.JadwalDatang,
+		Harga:              req.Harga,
+		Kapasitas:          req.Kapasitas,
+		BandaraPenerbangan: bandaraPenerbangan,
+		MaskapaiID:         req.MaskapaiID,
+	}
+
+	penerbanganReg, err := as.adminRepo.CreatePenerbangan(ctx, nil, penerbangan)
+
+	if err != nil {
+		return dto.PenerbanganResponse{}, dto.ErrCreateMaskapai
+	}
+
+	var bandaras []dto.BandaraResponse
+
+	for _, bp := range penerbanganReg.BandaraPenerbangan {
+		bandara := dto.BandaraResponse{
+			ID:   bp.Bandara.ID,
+			Name: bp.Bandara.Name,
+			Kota: bp.Bandara.Kota,
+			Kode: bp.Bandara.Kode,
+		}
+		bandaras = append(bandaras, bandara)
+	}
+
+	return dto.PenerbanganResponse{
+		ID:              penerbanganReg.ID,
+		NoPenerbangan:   penerbanganReg.NoPenerbangan,
+		JadwalBerangkat: penerbanganReg.JadwalDatang,
+		JadwalDatang:    penerbanganReg.JadwalDatang,
+		Harga:           penerbanganReg.Harga,
+		Kapasitas:       penerbanganReg.Kapasitas,
+		Maskapai: dto.MaskapaiResponse{
+			ID:    penerbanganReg.Maskapai.ID,
+			Name:  penerbanganReg.Maskapai.Name,
+			Image: penerbanganReg.Maskapai.Image,
+		},
+		Bandaras: bandaras,
 	}, nil
 }

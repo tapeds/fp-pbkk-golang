@@ -17,5 +17,7 @@ type BandaraPenerbangan struct {
 	PenerbanganID uuid.UUID
 	Arah          ArahEnum `gorm:"type:arah_enum"`
 
+	Bandara Bandara
+
 	Timestamp
 }

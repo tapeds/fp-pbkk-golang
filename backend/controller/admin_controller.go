@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,8 +13,11 @@ import (
 type (
 	AdminController interface {
 		GetPenerbangan(ctx *gin.Context)
+		GetBandara(ctx *gin.Context)
+		GetMaskapai(ctx *gin.Context)
 		AddBandara(ctx *gin.Context)
 		AddMaskapai(ctx *gin.Context)
+		AddPenerbangan(ctx *gin.Context)
 	}
 
 	adminController struct {
@@ -28,6 +32,10 @@ func NewAdminController(as service.AdminService) AdminController {
 }
 
 func (ac *adminController) GetPenerbangan(ctx *gin.Context) {
+	userRole := ctx.MustGet("role").(string)
+
+	fmt.Println(userRole)
+
 	var req dto.PaginationRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
@@ -37,16 +45,50 @@ func (ac *adminController) GetPenerbangan(ctx *gin.Context) {
 
 	result, err := ac.adminService.GetAllPenerbanganWithPagination(ctx.Request.Context(), req)
 	if err != nil {
-		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_USER, err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_PENERBANGAN, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	resp := utils.Response{
 		Status:  true,
-		Message: dto.MESSAGE_SUCCESS_GET_LIST_USER,
+		Message: dto.MESSAGE_SUCCESS_GET_LIST_PENERBANGAN,
 		Data:    result.Data,
 		Meta:    result.PaginationResponse,
+	}
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (ac *adminController) GetBandara(ctx *gin.Context) {
+	result, err := ac.adminService.GetAllBandara(ctx.Request.Context())
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_BANDARA, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	resp := utils.Response{
+		Status:  true,
+		Message: dto.MESSAGE_SUCCESS_GET_LIST_BANDARA,
+		Data:    result,
+	}
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (ac *adminController) GetMaskapai(ctx *gin.Context) {
+	result, err := ac.adminService.GetAllMaskapai(ctx.Request.Context())
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_MASKAPAI, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	resp := utils.Response{
+		Status:  true,
+		Message: dto.MESSAGE_SUCCESS_GET_LIST_MASKAPAI,
+		Data:    result,
 	}
 
 	ctx.JSON(http.StatusOK, resp)
@@ -96,6 +138,31 @@ func (ac *adminController) AddMaskapai(ctx *gin.Context) {
 	resp := utils.Response{
 		Status:  true,
 		Message: dto.MESSAGE_SUCCESS_CREATE_MASKAPAI,
+		Data:    result,
+	}
+
+	ctx.JSON(http.StatusOK, resp)
+}
+
+func (ac *adminController) AddPenerbangan(ctx *gin.Context) {
+	var req dto.PenerbanganCreateRequest
+	if err := ctx.ShouldBind(&req); err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := ac.adminService.CreatePenerbangan(ctx.Request.Context(), req)
+
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_PENERBANGAN, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	resp := utils.Response{
+		Status:  true,
+		Message: dto.MESSAGE_SUCCESS_CREATE_PENERBANGAN,
 		Data:    result,
 	}
 

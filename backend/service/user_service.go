@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"html/template"
 	"os"
 	"strings"
@@ -15,7 +14,6 @@ import (
 	"github.com/tapeds/fp-pbkk-golang/helpers"
 	"github.com/tapeds/fp-pbkk-golang/repository"
 	"github.com/tapeds/fp-pbkk-golang/utils"
-	"github.com/google/uuid"
 )
 
 type (
@@ -50,27 +48,14 @@ const (
 )
 
 func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (dto.UserResponse, error) {
-	var filename string
-
 	_, flag, _ := s.userRepo.CheckEmail(ctx, nil, req.Email)
 	if flag {
 		return dto.UserResponse{}, dto.ErrEmailAlreadyExists
 	}
 
-	if req.Image != nil {
-		imageId := uuid.New()
-		ext := utils.GetExtensions(req.Image.Filename)
-
-		filename = fmt.Sprintf("profile/%s.%s", imageId, ext)
-		if err := utils.UploadFile(req.Image, filename); err != nil {
-			return dto.UserResponse{}, err
-		}
-	}
-
 	user := entity.User{
 		Name:       req.Name,
 		TelpNumber: req.TelpNumber,
-		ImageUrl:   filename,
 		Role:       constants.ENUM_ROLE_USER,
 		Email:      req.Email,
 		Password:   req.Password,
@@ -96,7 +81,6 @@ func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (
 		ID:         userReg.ID.String(),
 		Name:       userReg.Name,
 		TelpNumber: userReg.TelpNumber,
-		ImageUrl:   userReg.ImageUrl,
 		Role:       userReg.Role,
 		Email:      userReg.Email,
 		IsVerified: userReg.IsVerified,
@@ -227,7 +211,6 @@ func (s *userService) GetAllUserWithPagination(ctx context.Context, req dto.Pagi
 			Email:      user.Email,
 			Role:       user.Role,
 			TelpNumber: user.TelpNumber,
-			ImageUrl:   user.ImageUrl,
 			IsVerified: user.IsVerified,
 		}
 
@@ -257,7 +240,6 @@ func (s *userService) GetUserById(ctx context.Context, userId string) (dto.UserR
 		TelpNumber: user.TelpNumber,
 		Role:       user.Role,
 		Email:      user.Email,
-		ImageUrl:   user.ImageUrl,
 		IsVerified: user.IsVerified,
 	}, nil
 }
@@ -274,7 +256,6 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (dto.Use
 		TelpNumber: emails.TelpNumber,
 		Role:       emails.Role,
 		Email:      emails.Email,
-		ImageUrl:   emails.ImageUrl,
 		IsVerified: emails.IsVerified,
 	}, nil
 }

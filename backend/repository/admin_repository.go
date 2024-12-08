@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 
+	"github.com/google/uuid"
 	"github.com/tapeds/fp-pbkk-golang/dto"
 	"github.com/tapeds/fp-pbkk-golang/entity"
 	"gorm.io/gorm"
@@ -19,6 +20,12 @@ type (
 		CreateBandara(ctx context.Context, tx *gorm.DB, bandara entity.Bandara) (entity.Bandara, error)
 		CreateMaskapai(ctx context.Context, tx *gorm.DB, maskapai entity.Maskapai) (entity.Maskapai, error)
 		CreatePenerbangan(ctx context.Context, tx *gorm.DB, penerbangan entity.Penerbangan) (entity.Penerbangan, error)
+		GetPenerbanganByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entity.Penerbangan, error)
+		UpdatePenerbangan(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Penerbangan) (entity.Penerbangan, error)
+		GetMaskapaiByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entity.Maskapai, error)
+		UpdateMaskapai(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Maskapai) (entity.Maskapai, error)
+		GetBandaraByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entity.Bandara, error)
+		UpdateBandara(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Bandara) (entity.Bandara, error)
 	}
 
 	adminRepository struct {
@@ -163,4 +170,94 @@ func (ar *adminRepository) CreatePenerbangan(ctx context.Context, tx *gorm.DB, p
 	}
 
 	return penerbangan, nil
+}
+
+func (ar *adminRepository) GetPenerbanganByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entity.Penerbangan, error) {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var penerbangan entity.Penerbangan
+	if err := tx.WithContext(ctx).Where("id = ?", id).Take(&penerbangan).Error; err != nil {
+		return entity.Penerbangan{}, err
+	}
+
+	return penerbangan, nil
+}
+
+func (ar *adminRepository) UpdatePenerbangan(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Penerbangan) (entity.Penerbangan, error) {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var penerbangan entity.Penerbangan
+	if err := tx.WithContext(ctx).Model(&penerbangan).Where("id = ?", id).Preload("Maskapai").Preload("BandaraPenerbangan.Bandara").Updates(updateData).Error; err != nil {
+		return entity.Penerbangan{}, err
+	}
+
+	if err := tx.WithContext(ctx).Preload("Maskapai").Preload("BandaraPenerbangan.Bandara").First(&penerbangan, id).Error; err != nil {
+		return entity.Penerbangan{}, err
+	}
+
+	return penerbangan, nil
+}
+
+func (ar *adminRepository) GetMaskapaiByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entity.Maskapai, error) {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var maskapai entity.Maskapai
+	if err := tx.WithContext(ctx).Where("id = ?", id).Take(&maskapai).Error; err != nil {
+		return entity.Maskapai{}, err
+	}
+
+	return maskapai, nil
+}
+
+func (ar *adminRepository) UpdateMaskapai(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Maskapai) (entity.Maskapai, error) {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var maskapai entity.Maskapai
+	if err := tx.WithContext(ctx).Model(&maskapai).Where("id = ?", id).Updates(updateData).Error; err != nil {
+		return entity.Maskapai{}, err
+	}
+
+	if err := tx.WithContext(ctx).First(&maskapai, id).Error; err != nil {
+		return entity.Maskapai{}, err
+	}
+
+	return maskapai, nil
+}
+
+func (ar *adminRepository) GetBandaraByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entity.Bandara, error) {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var bandara entity.Bandara
+	if err := tx.WithContext(ctx).Where("id = ?", id).Take(&bandara).Error; err != nil {
+		return entity.Bandara{}, err
+	}
+
+	return bandara, nil
+}
+
+func (ar *adminRepository) UpdateBandara(ctx context.Context, tx *gorm.DB, id uuid.UUID, updateData entity.Bandara) (entity.Bandara, error) {
+	if tx == nil {
+		tx = ar.db
+	}
+
+	var bandara entity.Bandara
+	if err := tx.WithContext(ctx).Model(&bandara).Where("id = ?", id).Updates(updateData).Error; err != nil {
+		return entity.Bandara{}, err
+	}
+
+	if err := tx.WithContext(ctx).First(&bandara, id).Error; err != nil {
+		return entity.Bandara{}, err
+	}
+
+	return bandara, nil
 }

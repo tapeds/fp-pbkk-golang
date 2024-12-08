@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,10 +34,6 @@ func NewAdminController(as service.AdminService) AdminController {
 }
 
 func (ac *adminController) GetPenerbangan(ctx *gin.Context) {
-	userRole := ctx.MustGet("role").(string)
-
-	fmt.Println(userRole)
-
 	var req dto.PaginationRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)

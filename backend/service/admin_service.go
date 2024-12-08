@@ -42,13 +42,14 @@ func (as *adminService) GetAllPenerbanganWithPagination(ctx context.Context, req
 
 	var datas []dto.PenerbanganResponse
 	for _, penerbangan := range dataWithPaginate.Penerbangans {
-		var bandaras []dto.BandaraResponse
+		var bandaras []dto.BandaraArahResponse
 		for _, bp := range penerbangan.BandaraPenerbangan {
-			bandara := dto.BandaraResponse{
+			bandara := dto.BandaraArahResponse{
 				ID:   bp.Bandara.ID,
 				Name: bp.Bandara.Name,
 				Kota: bp.Bandara.Kota,
 				Kode: bp.Bandara.Kode,
+				Arah: bp.Arah,
 			}
 			bandaras = append(bandaras, bandara)
 		}
@@ -222,14 +223,14 @@ func (as *adminService) CreatePenerbangan(ctx context.Context, req dto.Penerbang
 		return dto.PenerbanganResponse{}, dto.ErrCreateMaskapai
 	}
 
-	var bandaras []dto.BandaraResponse
-
+	var bandaras []dto.BandaraArahResponse
 	for _, bp := range penerbanganReg.BandaraPenerbangan {
-		bandara := dto.BandaraResponse{
+		bandara := dto.BandaraArahResponse{
 			ID:   bp.Bandara.ID,
 			Name: bp.Bandara.Name,
 			Kota: bp.Bandara.Kota,
 			Kode: bp.Bandara.Kode,
+			Arah: bp.Arah,
 		}
 		bandaras = append(bandaras, bandara)
 	}
@@ -310,13 +311,14 @@ func (as *adminService) EditPenerbangan(ctx context.Context, req dto.Penerbangan
 		return dto.PenerbanganResponse{}, dto.ErrEditPenerbangan
 	}
 
-	var bandaras []dto.BandaraResponse
+	var bandaras []dto.BandaraArahResponse
 	for _, bp := range updatedPenerbangan.BandaraPenerbangan {
-		bandara := dto.BandaraResponse{
+		bandara := dto.BandaraArahResponse{
 			ID:   bp.Bandara.ID,
 			Name: bp.Bandara.Name,
 			Kota: bp.Bandara.Kota,
 			Kode: bp.Bandara.Kode,
+			Arah: bp.Arah,
 		}
 		bandaras = append(bandaras, bandara)
 	}

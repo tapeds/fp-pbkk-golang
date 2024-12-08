@@ -10,9 +10,9 @@ import (
 func Admin(route *gin.Engine, adminController controller.AdminController, jwtService service.JWTService) {
 	routes := route.Group("/api/admin")
 	{
-		routes.GET("/penerbangan", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.GetPenerbangan)
-		routes.GET("/bandara", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.GetBandara)
-		routes.GET("/maskapai", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.GetMaskapai)
+		routes.GET("/penerbangan", adminController.GetPenerbangan)
+		routes.GET("/bandara", adminController.GetBandara)
+		routes.GET("/maskapai", adminController.GetMaskapai)
 		routes.POST("/bandara", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.AddBandara)
 		routes.POST("/maskapai", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.AddMaskapai)
 		routes.POST("/penerbangan", middleware.Authenticate(jwtService, middleware.WithRole("admin")), adminController.AddPenerbangan)

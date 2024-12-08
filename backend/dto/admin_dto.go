@@ -75,6 +75,14 @@ type (
 		Kota string    `json:"kota"`
 	}
 
+	BandaraArahResponse struct {
+		ID   uuid.UUID       `json:"id"`
+		Name string          `json:"name"`
+		Kode string          `json:"kode"`
+		Kota string          `json:"kota"`
+		Arah entity.ArahEnum `json:"arah"`
+	}
+
 	MaskapaiResponse struct {
 		ID    uuid.UUID `json:"id"`
 		Name  string    `json:"name"`
@@ -82,14 +90,14 @@ type (
 	}
 
 	PenerbanganResponse struct {
-		ID              uuid.UUID         `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-		NoPenerbangan   string            `json:"no_penerbangan"`
-		JadwalBerangkat time.Time         `json:"jadwal_berangkat"`
-		JadwalDatang    time.Time         `json:"jadwal_datang"`
-		Harga           int               `json:"harga"`
-		Kapasitas       int               `json:"kapasitas"`
-		Maskapai        MaskapaiResponse  `json:"maskapai"`
-		Bandaras        []BandaraResponse `json:"bandaras"`
+		ID              uuid.UUID             `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+		NoPenerbangan   string                `json:"no_penerbangan"`
+		JadwalBerangkat time.Time             `json:"jadwal_berangkat"`
+		JadwalDatang    time.Time             `json:"jadwal_datang"`
+		Harga           int                   `json:"harga"`
+		Kapasitas       int                   `json:"kapasitas"`
+		Maskapai        MaskapaiResponse      `json:"maskapai"`
+		Bandaras        []BandaraArahResponse `json:"bandaras"`
 	}
 
 	PenerbanganPaginationResponse struct {

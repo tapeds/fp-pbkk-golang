@@ -47,7 +47,7 @@ export default function AdminMaskapai() {
   return (
     <AdminLayout className="flex-col">
       <h1 className="text-3xl mb-10 font-bold">Daftar Maskapai</h1>
-      <div className="w-3/4 overflow-hidden">
+      <div className="w-full px-20 overflow-hidden">
         <Table data={data?.data ?? []} columns={columns} className="w-full" />
       </div>
     </AdminLayout>

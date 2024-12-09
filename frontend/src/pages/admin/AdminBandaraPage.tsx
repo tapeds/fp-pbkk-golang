@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { ApiResponse, ApiURL } from "../../const/api";
 import AdminLayout from "./component/AdminLayout";
 import Table from "../../components/table/Table";
@@ -11,6 +11,7 @@ import Input from "../../components/Input";
 import { FormProvider, useForm } from "react-hook-form";
 import DeleteModal from "../../components/DeleteModal";
 import EditModal from "../../components/EditModal";
+import toast from "react-hot-toast";
 
 type AirportProps = {
   id: string;
@@ -138,9 +139,13 @@ export default function AdminBandara() {
       });
     },
     onSuccess: () => {
+      toast.success("Bandara berhasil dihapus");
       queryClient.invalidateQueries({
         queryKey: ["bandara"],
       });
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 
@@ -157,9 +162,13 @@ export default function AdminBandara() {
       });
     },
     onSuccess: () => {
+      toast.success("Bandara berhasil diedit");
       queryClient.invalidateQueries({
         queryKey: ["bandara"],
       });
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 
@@ -172,10 +181,14 @@ export default function AdminBandara() {
       });
     },
     onSuccess: () => {
+      toast.success("Bandara berhasil ditambahkan");
       queryClient.invalidateQueries({
         queryKey: ["bandara"],
       });
       setIsTambahOpen(false);
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 

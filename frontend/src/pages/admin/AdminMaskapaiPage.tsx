@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { ApiResponse, ApiURL } from "../../const/api";
 import AdminLayout from "./component/AdminLayout";
 import Table from "../../components/table/Table";
@@ -11,6 +11,7 @@ import Modal from "../../components/Modal";
 import Input from "../../components/Input";
 import DeleteModal from "../../components/DeleteModal";
 import EditModal from "../../components/EditModal";
+import toast from "react-hot-toast";
 
 type AirlineProps = {
   id: string;
@@ -126,9 +127,13 @@ export default function AdminMaskapai() {
       });
     },
     onSuccess: () => {
+      toast.success("Maskapai berhasil dihapus");
       queryClient.invalidateQueries({
         queryKey: ["maskapai"],
       });
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 
@@ -145,9 +150,13 @@ export default function AdminMaskapai() {
       });
     },
     onSuccess: () => {
+      toast.success("Maskapai berhasil diedit");
       queryClient.invalidateQueries({
         queryKey: ["maskapai"],
       });
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 
@@ -160,10 +169,14 @@ export default function AdminMaskapai() {
       });
     },
     onSuccess: () => {
+      toast.success("Maskapai berhasil ditambahkan");
       queryClient.invalidateQueries({
         queryKey: ["maskapai"],
       });
       setIsTambahOpen(false);
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 

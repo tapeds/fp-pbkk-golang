@@ -4,7 +4,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { ApiResponse, ApiURL, PaginatedApiResponse } from "../../const/api";
 import AdminLayout from "./component/AdminLayout";
 import { ColumnDef } from "@tanstack/react-table";
@@ -20,6 +20,7 @@ import SelectInput from "../../components/SelectInput";
 import { useCookies } from "react-cookie";
 import DeleteModal from "../../components/DeleteModal";
 import EditModal from "../../components/EditModal";
+import toast from "react-hot-toast";
 
 type PenerbanganProps = {
   id: string;
@@ -347,9 +348,13 @@ export default function AdminPenerbangan() {
       });
     },
     onSuccess: () => {
+      toast.success("Penerbangan berhasil dihapus");
       queryClient.invalidateQueries({
         queryKey: ["penerbangan"],
       });
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 
@@ -366,9 +371,13 @@ export default function AdminPenerbangan() {
       });
     },
     onSuccess: () => {
+      toast.success("Penerbangan berhasil diedit");
       queryClient.invalidateQueries({
         queryKey: ["penerbangan"],
       });
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 
@@ -381,10 +390,14 @@ export default function AdminPenerbangan() {
       });
     },
     onSuccess: () => {
+      toast.success("Penerbangan berhasil ditambahkan");
       queryClient.invalidateQueries({
         queryKey: ["penerbangan"],
       });
       setIsTambahOpen(false);
+    },
+    onError: (err: AxiosError) => {
+      toast.error((err.response?.data as { error: string }).error);
     },
   });
 

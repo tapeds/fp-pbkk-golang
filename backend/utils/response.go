@@ -1,5 +1,9 @@
 package utils
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
 type Response struct {
 	Status  bool   `json:"status"`
 	Message string `json:"message"`
@@ -28,3 +32,10 @@ func BuildResponseFailed(message string, err string, data any) Response {
 	}
 	return res
 }
+
+var validate = validator.New()
+
+func ValidateStruct(data interface{}) error {
+	return validate.Struct(data)
+}
+

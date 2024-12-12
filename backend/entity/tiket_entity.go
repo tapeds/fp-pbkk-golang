@@ -6,9 +6,10 @@ import (
 
 type Tiket struct {
 	ID            uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	UserID        uuid.UUID
-	PenerbanganID uuid.UUID
-	Penumpang     []Penumpang
-
+	PenerbanganID uuid.UUID `json:"penerbangan_id"`
+	
+	Penumpang     []Penumpang `gorm:"foreignKey:TiketID" json:"penumpang"`
+	UserID        uuid.UUID 
+	User          User
 	Timestamp
 }

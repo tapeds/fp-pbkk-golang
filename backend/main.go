@@ -13,6 +13,7 @@ import (
 	"github.com/tapeds/fp-pbkk-golang/service"
 
 	"github.com/gin-gonic/gin"
+	
 )
 
 func main() {
@@ -33,14 +34,30 @@ func main() {
 		// Repository
 		userRepository  repository.UserRepository  = repository.NewUserRepository(db)
 		adminRepository repository.AdminRepository = repository.NewAdminRepository(db)
+		ticketRepository repository.TicketRepository = repository.NewTicketRepository(db)
+		passengerRepository repository.PassengerRepository = repository.NewPassengerRepository(db)
+		penerbanganRepository repository.PenerbanganRepository = repository.NewPenerbanganRepository(db)
 
 		// Service
 		userService  service.UserService  = service.NewUserService(userRepository, jwtService)
 		adminService service.AdminService = service.NewAdminService(adminRepository, jwtService)
+		checkoutService service.CheckoutService = service.NewCheckoutService(ticketRepository, passengerRepository, adminRepository)
+		pesananService service.PesananService = service.NewPesananService(ticketRepository, jwtService, penerbanganRepository)
+		jadwalService service.JadwalService = service.NewJadwalService(penerbanganRepository)
 
 		// Controller
 		userController  controller.UserController  = controller.NewUserController(userService)
 		adminController controller.AdminController = controller.NewAdminController(adminService)
+		checkoutController *controller.CheckoutController = controller.NewCheckoutController(checkoutService)
+		pesananController controller.PesananController = controller.NewPesananController(pesananService)
+		jadwalController controller.JadwalController = *controller.NewJadwalController(jadwalService)
+		// userRepository repository.UserRepository = repository.NewUserRepository(db)
+
+		// Service
+		// userService service.UserService = service.NewUserService(userRepository, jwtService)
+
+		// Controller
+		// userController controller.UserController = controller.NewUserController(userService)
 	)
 
 	server := gin.Default()
@@ -49,6 +66,9 @@ func main() {
 	// routes
 	routes.User(server, userController, jwtService)
 	routes.Admin(server, adminController, jwtService)
+	routes.Checkout(server, checkoutController, jwtService)
+	routes.Pesanan(server, pesananController, jwtService)
+	routes.Routes(server, adminController, jadwalController)
 
 	server.Static("/assets", "./assets")
 	port := os.Getenv("PORT")

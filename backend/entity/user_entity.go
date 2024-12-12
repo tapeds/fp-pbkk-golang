@@ -14,6 +14,7 @@ type User struct {
 	Password   string    `json:"password"`
 	Role       string    `json:"role"`
 	IsVerified bool      `json:"is_verified"`
+	
 	Tiket      []Tiket
 
 	Timestamp
@@ -25,6 +26,12 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 			tx.Rollback()
 		}
 	}()
+
+	if u.Role == "" {
+		u.Role = "user"
+	}
+	u.IsVerified = true 
+	
 
 	var err error
 	// u.ID = uuid.New()

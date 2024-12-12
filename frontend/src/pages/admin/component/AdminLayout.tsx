@@ -19,7 +19,7 @@ export default function AdminLayout({
               "p-6 min-h-screen bg-gray-100 flex justify-center items-center overflow-hidden md:ml-64",
               className,
             )}
-          >
+          > 
             {children}
           </main>
         </>

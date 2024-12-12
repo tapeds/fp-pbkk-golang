@@ -11,8 +11,8 @@ func User(route *gin.Engine, userController controller.UserController, jwtServic
 	routes := route.Group("/api/user")
 	{
 		// User
-		routes.POST("", userController.Register)
-		routes.GET("", userController.GetAllUser)
+		routes.POST("/register", userController.Register)
+		routes.GET("/getAll", userController.GetAllUser)
 		routes.POST("/login", userController.Login)
 		routes.DELETE("", middleware.Authenticate(jwtService), userController.Delete)
 		routes.PATCH("", middleware.Authenticate(jwtService), userController.Update)
